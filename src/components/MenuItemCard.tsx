@@ -6,13 +6,12 @@ import { cn } from '@/lib/utils';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  accentColor: string;
   onEdit: () => void;
   onDelete: () => void;
   isNew?: boolean;
 }
 
-export function MenuItemCard({ item, accentColor, onEdit, onDelete, isNew }: MenuItemCardProps) {
+export function MenuItemCard({ item, onEdit, onDelete, isNew }: MenuItemCardProps) {
   const [showActions, setShowActions] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -28,64 +27,51 @@ export function MenuItemCard({ item, accentColor, onEdit, onDelete, isNew }: Men
   return (
     <div
       className={cn(
-        'group relative flex items-start gap-3 px-4 py-3 rounded-xl border border-transparent hover:border-border hover:bg-muted/40 transition-all duration-200 cursor-default',
+        'grid rounded-xl border border-border bg-muted/20 cursor-pointer transition-all duration-200 overflow-hidden',
+        showActions ? 'bg-muted/50' : 'hover:bg-muted/40',
         isNew && 'animate-slide-up'
       )}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => { setShowActions(false); setConfirmDelete(false); }}
+      onClick={() => setShowActions((v) => !v)}
     >
-      {/* Accent dot */}
-      <div className={cn('mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0', accentColor)} />
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
+      {/* Row 1: content */}
+      <div className="px-4 py-3">
         <div className="text-sm font-medium text-foreground leading-snug">{item.name}</div>
         {item.description && (
           <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.description}</div>
         )}
       </div>
 
-      {/* Action buttons — visible on hover (desktop) or always on mobile */}
-      <div
-        className={cn(
-          'flex items-center gap-1 flex-shrink-0 transition-opacity duration-150',
-          showActions ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        )}
-        // On mobile, always show actions via touch
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-foreground"
-          onClick={onEdit}
-          aria-label="Edit item"
+      {/* Row 2: actions — only shown after clicking */}
+      {showActions && (
+        <div
+          className="flex items-center gap-1 px-3 py-2 border-t border-border"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Pencil className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            'h-7 w-7 transition-colors',
-            confirmDelete
-              ? 'text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20'
-              : 'text-muted-foreground hover:text-red-400'
-          )}
-          onClick={handleDelete}
-          aria-label={confirmDelete ? 'Confirm delete' : 'Delete item'}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-
-      {/* Mobile: tap to show/hide actions */}
-      <button
-        className="absolute inset-0 sm:hidden"
-        style={{ zIndex: showActions ? -1 : 0 }}
-        onClick={() => setShowActions((v) => !v)}
-        aria-label="Show actions"
-      />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            onClick={onEdit}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              'h-7 gap-1.5 text-xs transition-colors',
+              confirmDelete
+                ? 'text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20'
+                : 'text-muted-foreground hover:text-red-400'
+            )}
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {confirmDelete ? 'Confirm' : 'Delete'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

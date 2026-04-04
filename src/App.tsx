@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Plus, Shuffle, UtensilsCrossed } from 'lucide-react';
+import { Share2, RotateCcw, Plus, Shuffle, MoreHorizontal } from 'lucide-react';
 import { useMenu } from '@/hooks/useMenu';
 import { CATEGORIES } from '@/data/categories';
 import { CategorySection } from '@/components/CategorySection';
@@ -8,23 +8,29 @@ import { SpinDialog } from '@/components/SpinDialog';
 import { ShareDialog } from '@/components/ShareDialog';
 import { ResetDialog } from '@/components/ResetDialog';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { Category, MenuItem } from '@/types';
 import { decodeMenuFromUrl, clearShareFromUrl } from '@/lib/share';
+import { cn } from '@/lib/utils';
 
 export default function App() {
   const { menu, addItem, updateItem, deleteItem, getItemsByCategory, resetToDefaults, importMenu } = useMenu();
 
-  // Dialogs
   const [itemFormOpen, setItemFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [addingToCategory, setAddingToCategory] = useState<Category>('entree');
   const [spinOpen, setSpinOpen] = useState(false);
   const [spinCategory, setSpinCategory] = useState<Category | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [newItemId, setNewItemId] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<Category>(CATEGORIES[0].id);
 
-  // Shared menu from URL
   const [sharedMenu, setSharedMenu] = useState(() => decodeMenuFromUrl());
 
   useEffect(() => {
@@ -34,9 +40,8 @@ export default function App() {
     }
   }, []);
 
-  const handleAddItem = (category: Category) => {
+  const handleAddItem = () => {
     setEditingItem(null);
-    setAddingToCategory(category);
     setItemFormOpen(true);
   };
 
@@ -55,112 +60,127 @@ export default function App() {
     }
   };
 
-  const handleSpin = (category: Category) => {
-    setSpinCategory(category);
+  const handleSpin = () => {
+    setSpinCategory(activeCategory);
     setSpinOpen(true);
   };
 
-  const handleSpinRandom = () => {
-    const nonEmpty = CATEGORIES.filter((c) => getItemsByCategory(c.id).length > 0);
-    if (nonEmpty.length === 0) return;
-    const cat = nonEmpty[Math.floor(Math.random() * nonEmpty.length)];
-    setSpinCategory(cat.id);
-    setSpinOpen(true);
-  };
-
-  const totalItems = menu.items.length;
+  const activeMeta = CATEGORIES.find((c) => c.id === activeCategory)!;
+  const activeItems = getItemsByCategory(activeCategory);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-              <UtensilsCrossed className="h-4 w-4 text-primary" />
+      <Tabs
+        value={activeCategory}
+        onValueChange={(v) => setActiveCategory(v as Category)}
+      >
+        {/* Scrollable content — padded so it clears the fixed bottom bar */}
+        <main className="max-w-2xl mx-auto px-4 pt-6 pb-36">
+          {CATEGORIES.map((cat) => (
+            <TabsContent key={cat.id} value={cat.id} className="mt-0 focus-visible:ring-0">
+              {/* Category header */}
+              <div className="mb-4">
+                <h2 className={cn('text-lg font-bold', cat.color)}>
+                  {cat.emoji} {cat.label}
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+              </div>
+
+              <CategorySection
+                items={getItemsByCategory(cat.id)}
+                onEditItem={handleEditItem}
+                onDeleteItem={deleteItem}
+                newItemId={newItemId}
+              />
+            </TabsContent>
+          ))}
+        </main>
+
+        {/* Fixed bottom bar */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-border">
+          <div className="max-w-2xl mx-auto px-3">
+
+            {/* Action row */}
+            <div className="flex items-center gap-2 pt-2 pb-1">
+              <Button
+                size="sm"
+                className={cn('flex-1 h-9 gap-1.5 text-sm')}
+                onClick={handleAddItem}
+              >
+                <Plus className="h-4 w-4" />
+                Add to {activeMeta.label}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5 text-sm"
+                disabled={activeItems.length === 0}
+                onClick={handleSpin}
+              >
+                <Shuffle className="h-4 w-4" />
+                Spin
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => setShareOpen(true)}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share menu
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-red-400 focus:text-red-300"
+                    onClick={() => setResetOpen(true)}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset to defaults
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <div>
-              <h1 className="text-sm font-bold text-foreground leading-none">Dopamine Menu</h1>
-              <p className="text-xs text-muted-foreground leading-none mt-0.5">{totalItems} items</p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-xs text-muted-foreground"
-              onClick={handleSpinRandom}
-              title="Spin a random category"
-            >
-              <Shuffle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Random</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-xs text-muted-foreground"
-              onClick={() => setShareOpen(true)}
-            >
-              <Share2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Share</span>
-            </Button>
-            <Button
-              size="sm"
-              className="h-8 gap-1.5 text-xs"
-              onClick={() => handleAddItem('entree')}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Add item</span>
-            </Button>
+            {/* Tab strip */}
+            <TabsList className="w-full h-auto p-1 gap-0.5 bg-transparent rounded-none mb-safe">
+              {CATEGORIES.map((cat) => {
+                const count = getItemsByCategory(cat.id).length;
+                const isActive = activeCategory === cat.id;
+                return (
+                  <TabsTrigger
+                    key={cat.id}
+                    value={cat.id}
+                    className={cn(
+                      'flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-xs font-medium transition-all',
+                      isActive ? cat.color : 'text-muted-foreground'
+                    )}
+                  >
+                    <span className="text-lg leading-none">{cat.emoji}</span>
+                    <span className="leading-none text-[10px]">{cat.label}</span>
+                    <span className={cn(
+                      'text-[10px] leading-none font-semibold tabular-nums',
+                      isActive ? cat.color : 'text-muted-foreground/50'
+                    )}>
+                      {count}
+                    </span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
           </div>
         </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-        {/* Hero tagline */}
-        <div className="text-center py-2 pb-4">
-          <p className="text-sm text-muted-foreground">
-            Your personal feel-good activity menu.{' '}
-            <span className="text-foreground/70">Pick something, do the thing.</span>
-          </p>
-        </div>
-
-        {/* Category sections */}
-        {CATEGORIES.map((cat) => (
-          <CategorySection
-            key={cat.id}
-            meta={cat}
-            items={getItemsByCategory(cat.id)}
-            onAddItem={handleAddItem}
-            onEditItem={handleEditItem}
-            onDeleteItem={deleteItem}
-            onSpin={handleSpin}
-            newItemId={newItemId}
-          />
-        ))}
-
-        {/* Footer actions */}
-        <div className="flex justify-center pt-4 pb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground gap-1.5 h-8"
-            onClick={() => setResetOpen(true)}
-          >
-            <RotateCcw className="h-3 w-3" />
-            Reset to defaults
-          </Button>
-        </div>
-      </main>
+      </Tabs>
 
       {/* Dialogs */}
       <ItemFormDialog
         open={itemFormOpen}
         onOpenChange={setItemFormOpen}
         initialItem={editingItem}
-        defaultCategory={addingToCategory}
+        defaultCategory={activeCategory}
         onSave={handleSaveItem}
       />
 

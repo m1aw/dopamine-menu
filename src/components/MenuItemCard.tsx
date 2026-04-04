@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { MenuItem } from '@/types';
 import { Button } from '@/components/ui/button';
+import { getCategoryMeta } from '@/data/categories';
 import { cn } from '@/lib/utils';
 
 interface MenuItemCardProps {
@@ -14,6 +15,7 @@ interface MenuItemCardProps {
 export function MenuItemCard({ item, onEdit, onDelete, isNew }: MenuItemCardProps) {
   const [showActions, setShowActions] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const categoryMeta = getCategoryMeta(item.category);
 
   const handleDelete = () => {
     if (confirmDelete) {
@@ -27,8 +29,9 @@ export function MenuItemCard({ item, onEdit, onDelete, isNew }: MenuItemCardProp
   return (
     <div
       className={cn(
-        'grid rounded-xl border border-border bg-muted/20 cursor-pointer transition-all duration-200 overflow-hidden',
-        showActions ? 'bg-muted/50' : 'hover:bg-muted/40',
+        `grid rounded-xl cursor-pointer transition-all duration-200 border ${categoryMeta.borderColor}`,
+        categoryMeta.bgColor,
+        showActions ? 'brightness-110' : 'hover:brightness-125',
         isNew && 'animate-slide-up'
       )}
       onClick={() => setShowActions((v) => !v)}
@@ -44,7 +47,7 @@ export function MenuItemCard({ item, onEdit, onDelete, isNew }: MenuItemCardProp
       {/* Row 2: actions — only shown after clicking */}
       {showActions && (
         <div
-          className="flex items-center gap-1 px-3 py-2 border-t border-border"
+          className={cn(`flex items-center gap-1 px-3 py-2 border-t ${categoryMeta.borderColor}`)}
           onClick={(e) => e.stopPropagation()}
         >
           <Button

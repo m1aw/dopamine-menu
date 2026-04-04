@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Category, MenuItem } from '@/types';
+import type { Category, MenuItem, Menu } from '@/types';
 import { decodeMenuFromUrl, clearShareFromUrl } from '@/lib/share';
 import { cn } from '@/lib/utils';
 
@@ -31,10 +31,13 @@ export default function App() {
   const [newItemId, setNewItemId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category>(CATEGORIES[0].id);
 
-  const [sharedMenu, setSharedMenu] = useState(() => decodeMenuFromUrl());
+  const [sharedMenu, setSharedMenu] = useState<Menu | null>(null);
 
   useEffect(() => {
-    if (sharedMenu) {
+    const shared = decodeMenuFromUrl();
+    if (shared) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSharedMenu(shared);
       setShareOpen(true);
       clearShareFromUrl();
     }
@@ -145,7 +148,7 @@ export default function App() {
             </div>
 
             {/* Tab strip */}
-            <TabsList className="w-full h-auto p-1 gap-0.5 bg-transparent rounded-none mb-safe">
+            <TabsList className="w-full h-auto p-1 gap-2 bg-transparent rounded-none mb-safe">
               {CATEGORIES.map((cat) => {
                 const count = getItemsByCategory(cat.id).length;
                 const isActive = activeCategory === cat.id;
@@ -154,8 +157,8 @@ export default function App() {
                     key={cat.id}
                     value={cat.id}
                     className={cn(
-                      'flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-xs font-medium transition-all',
-                      isActive ? cat.color : 'text-muted-foreground'
+                      `flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-xs font-medium transition-all ring-offset-0 ${cat.ringColor} data-[state=active]:${cat.bgColor}`,
+                      isActive ? `ring-2 ${cat.bgColor}` : `ring-1 text-muted-foreground`
                     )}
                   >
                     <span className="text-lg leading-none">{cat.emoji}</span>

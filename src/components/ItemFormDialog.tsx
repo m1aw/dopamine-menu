@@ -34,9 +34,12 @@ export function ItemFormDialog({
 
   useEffect(() => {
     if (open) {
-      setName(initialItem?.name ?? '');
-      setDescription(initialItem?.description ?? '');
-      setCategory(initialItem?.category ?? defaultCategory);
+      const resetForm = () => {
+        setName(initialItem?.name ?? '');
+        setDescription(initialItem?.description ?? '');
+        setCategory(initialItem?.category ?? defaultCategory);
+      };
+      resetForm();
     }
   }, [open, initialItem, defaultCategory]);
 

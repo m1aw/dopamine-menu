@@ -20,6 +20,8 @@ export type CategoryMeta = {
   color: string;
   accentColor: string;
   borderColor: string;
+  ringColor: string;
+  bgColor: string;
   glowColor: string;
   badgeClass: string;
 };

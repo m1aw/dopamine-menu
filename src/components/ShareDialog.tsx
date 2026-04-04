@@ -6,12 +6,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import type { Menu } from '../types';
-import { encodeMenuToUrl } from '../lib/share';
-import { cn } from '../lib/utils';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import type { Menu } from '@/types';
+import { encodeMenuToUrl } from '@/lib/share';
+import { cn } from '@/lib/utils';
 
 interface ShareDialogProps {
   open: boolean;

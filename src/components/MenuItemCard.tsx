@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import type { MenuItem } from '../types';
-import { Button } from './ui/button';
-import { cn } from '../lib/utils';
+import type { MenuItem } from '@/types';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface MenuItemCardProps {
   item: MenuItem;

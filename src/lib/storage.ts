@@ -1,4 +1,4 @@
-import type { Menu } from '../types';
+import type { Menu } from '@/types';
 
 const STORAGE_KEY = 'dopamine-menu-v1';
 

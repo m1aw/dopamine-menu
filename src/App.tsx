@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Share2, RotateCcw, Plus, Shuffle, UtensilsCrossed } from 'lucide-react';
-import { useMenu } from './hooks/useMenu';
-import { CATEGORIES } from './data/categories';
-import { CategorySection } from './components/CategorySection';
-import { ItemFormDialog } from './components/ItemFormDialog';
-import { SpinDialog } from './components/SpinDialog';
-import { ShareDialog } from './components/ShareDialog';
-import { ResetDialog } from './components/ResetDialog';
-import { Button } from './components/ui/button';
-import type { Category, MenuItem } from './types';
-import { decodeMenuFromUrl, clearShareFromUrl } from './lib/share';
+import { useMenu } from '@/hooks/useMenu';
+import { CATEGORIES } from '@/data/categories';
+import { CategorySection } from '@/components/CategorySection';
+import { ItemFormDialog } from '@/components/ItemFormDialog';
+import { SpinDialog } from '@/components/SpinDialog';
+import { ShareDialog } from '@/components/ShareDialog';
+import { ResetDialog } from '@/components/ResetDialog';
+import { Button } from '@/components/ui/button';
+import type { Category, MenuItem } from '@/types';
+import { decodeMenuFromUrl, clearShareFromUrl } from '@/lib/share';
 
 export default function App() {
   const { menu, addItem, updateItem, deleteItem, getItemsByCategory, resetToDefaults, importMenu } = useMenu();

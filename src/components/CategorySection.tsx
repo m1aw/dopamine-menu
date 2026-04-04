@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Plus, Shuffle } from 'lucide-react';
-import type { Category, MenuItem } from '../types';
-import type { CategoryMeta } from '../types';
-import { Button } from './ui/button';
-import { MenuItemCard } from './MenuItemCard';
-import { cn } from '../lib/utils';
+import type { Category, MenuItem } from '@/types';
+import type { CategoryMeta } from '@/types';
+import { Button } from '@/components/ui/button';
+import { MenuItemCard } from '@/components/MenuItemCard';
+import { cn } from '@/lib/utils';
 
 interface CategorySectionProps {
   meta: CategoryMeta;

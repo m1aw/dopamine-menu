@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Menu, MenuItem, Category } from '../types';
-import { loadMenu, saveMenu, clearMenu } from '../lib/storage';
-import { DEFAULT_ITEMS } from '../data/defaults';
-import { generateId } from '../lib/utils';
+import type { Menu, MenuItem, Category } from '@/types';
+import { loadMenu, saveMenu, clearMenu } from '@/lib/storage';
+import { DEFAULT_ITEMS } from '@/data/defaults';
+import { generateId } from '@/lib/utils';
 
 function makeDefaultMenu(): Menu {
   return {

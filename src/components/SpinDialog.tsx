@@ -5,11 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import type { Category, MenuItem } from '../types';
-import { getCategoryMeta } from '../data/categories';
-import { cn } from '../lib/utils';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import type { Category, MenuItem } from '@/types';
+import { getCategoryMeta } from '@/data/categories';
+import { cn } from '@/lib/utils';
 
 interface SpinDialogProps {
   open: boolean;

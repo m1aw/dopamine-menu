@@ -1,4 +1,4 @@
-import type { MenuItem } from '../types';
+import type { MenuItem } from '@/types';
 
 export const DEFAULT_ITEMS: MenuItem[] = [
   // Salads

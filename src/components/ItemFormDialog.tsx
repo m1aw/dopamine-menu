@@ -5,13 +5,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import type { MenuItem, Category } from '../types';
-import { CATEGORIES } from '../data/categories';
-import { cn } from '../lib/utils';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import type { MenuItem, Category } from '@/types';
+import { CATEGORIES } from '@/data/categories';
+import { cn } from '@/lib/utils';
 
 interface ItemFormDialogProps {
   open: boolean;

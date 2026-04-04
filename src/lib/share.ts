@@ -1,4 +1,4 @@
-import type { Menu } from '../types';
+import type { Menu } from '@/types';
 
 export function encodeMenuToUrl(menu: Menu): string {
   try {

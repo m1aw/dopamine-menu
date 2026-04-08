@@ -2,11 +2,17 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-import { cloudflare } from "@cloudflare/vite-plugin";
+let plugins = [react()];
+try {
+  const { cloudflare } = require("@cloudflare/vite-plugin");
+  plugins.push(cloudflare());
+} catch {
+  // Cloudflare plugin not installed, skipping
+}
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), cloudflare()],
+  plugins,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

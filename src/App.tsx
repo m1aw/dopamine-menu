@@ -136,6 +136,11 @@ export default function App() {
                     <Share2 className="h-4 w-4 mr-2" />
                     Share menu
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/habits.html">
+                      <span>Habit tracker</span>
+                    </a>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-red-400 focus:text-red-300"
                     onClick={() => setResetOpen(true)}

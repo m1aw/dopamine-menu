@@ -13,4 +13,12 @@ export default defineConfig({
       'src': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        habits: path.resolve(__dirname, 'habits.html'),
+      },
+    },
+  },
 })

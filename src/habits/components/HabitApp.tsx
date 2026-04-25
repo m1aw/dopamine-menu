@@ -5,6 +5,7 @@ import { RewardsTab } from './RewardsTab';
 import { HistoryTab } from './HistoryTab';
 import { SettingsTab } from './SettingsTab';
 import { useHabits } from '@/habits/hooks/useHabits';
+import { downloadJson } from '@/lib/download';
 
 export function HabitApp() {
   const [activeTab, setActiveTab] = useState<Tab>('grid');
@@ -68,6 +69,7 @@ export function HabitApp() {
             onAddHabit={addHabit}
             onUpdateHabit={updateHabit}
             onDeleteHabit={deleteHabit}
+            onDownload={() => downloadJson(store, `habits-backup-${new Date().toISOString().slice(0, 10)}.json`)}
             onReset={resetAll}
           />
         )}

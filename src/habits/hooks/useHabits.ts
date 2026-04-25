@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { HabitStore, Habit, Completion, Reward, Redemption, PointsBreakdown } from '@/habits/types';
+import type { HabitStore, Habit, Completion, CompletionStatus, Reward, Redemption, PointsBreakdown } from '@/habits/types';
 import { loadHabitStore, saveHabitStore } from '@/habits/lib/storage';
 import { makeDefaultStore } from '@/habits/data/defaults';
 import { getStrategy } from '@/habits/lib/strategies';
@@ -66,22 +66,35 @@ export function useHabits() {
 
   // --- Completions ---
 
+  const CYCLE: Array<CompletionStatus | 'clear'> = ['checked', 'half', 'failed', 'clear'];
+
   const toggleCompletion = useCallback((habitId: string, weekKey: string, day: number) => {
     setStore((prev) => {
       const existing = prev.completions.find(
         (c) => c.habitId === habitId && c.weekKey === weekKey && c.day === day,
       );
+      const currentStatus: CompletionStatus | 'clear' = existing?.status ?? 'clear';
+      const nextStatus = CYCLE[(CYCLE.indexOf(currentStatus) + 1) % CYCLE.length];
+
+      if (nextStatus === 'clear') {
+        return { ...prev, completions: prev.completions.filter((c) => c !== existing) };
+      }
+
       if (existing) {
         return {
           ...prev,
-          completions: prev.completions.filter((c) => c !== existing),
+          completions: prev.completions.map((c) =>
+            c === existing ? { ...c, status: nextStatus } : c,
+          ),
         };
       }
+
       const completion: Completion = {
         habitId,
         weekKey,
         day,
         completedAt: new Date().toISOString(),
+        status: nextStatus,
       };
       return { ...prev, completions: [...prev.completions, completion] };
     });
@@ -89,6 +102,14 @@ export function useHabits() {
 
   const getCompletionsForWeek = useCallback(
     (weekKey: string) => store.completions.filter((c) => c.weekKey === weekKey),
+    [store.completions],
+  );
+
+  const getCompletionStatus = useCallback(
+    (habitId: string, weekKey: string, day: number): CompletionStatus | 'clear' =>
+      store.completions.find(
+        (c) => c.habitId === habitId && c.weekKey === weekKey && c.day === day,
+      )?.status ?? 'clear',
     [store.completions],
   );
 
@@ -187,6 +208,7 @@ export function useHabits() {
     reorderHabits,
     toggleCompletion,
     getCompletionsForWeek,
+    getCompletionStatus,
     isCompleted,
     getPointsForCompletion,
     totalPointsEarned,

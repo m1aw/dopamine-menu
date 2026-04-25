@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { DAY_LABELS } from '@/habits/lib/weeks';
 import { PunchCardCell } from './PunchCardCell';
-import type { Habit, Completion, PointsStrategy, PointsBreakdown } from '@/habits/types';
+import type { Habit, Completion, CompletionStatus, PointsStrategy, PointsBreakdown } from '@/habits/types';
 import { cn } from '@/lib/utils';
 
 function computeCellBreakdown(
@@ -10,9 +10,9 @@ function computeCellBreakdown(
   weekKey: string,
   day: number,
   strategy: PointsStrategy,
-  isAlreadyCompleted: boolean,
+  status: CompletionStatus | 'clear',
 ): PointsBreakdown {
-  if (isAlreadyCompleted) {
+  if (status !== 'clear') {
     return strategy.calculate(habit, completions, day, weekKey);
   }
   // Hypothetical: what would be earned if this cell were checked now
@@ -21,6 +21,7 @@ function computeCellBreakdown(
     weekKey,
     day,
     completedAt: new Date().toISOString(),
+    status: 'checked',
   };
   return strategy.calculate(habit, [...completions, hypothetical], day, weekKey);
 }
@@ -33,7 +34,7 @@ interface PunchCardGridProps {
   isCurrentWeek: boolean;
   readOnly: boolean;
   strategy: PointsStrategy;
-  isCompleted: (habitId: string, weekKey: string, day: number) => boolean;
+  getCompletionStatus: (habitId: string, weekKey: string, day: number) => CompletionStatus | 'clear';
   onToggle: (habitId: string, weekKey: string, day: number) => void;
 }
 
@@ -45,7 +46,7 @@ export function PunchCardGrid({
   isCurrentWeek,
   readOnly,
   strategy,
-  isCompleted,
+  getCompletionStatus,
   onToggle,
 }: PunchCardGridProps) {
   if (habits.length === 0) {
@@ -90,12 +91,12 @@ export function PunchCardGrid({
             </div>
 
             {habits.map((habit) => {
-              const completed = isCompleted(habit.id, weekKey, i);
-              const breakdown = computeCellBreakdown(habit, completions, weekKey, i, strategy, completed);
+              const status = getCompletionStatus(habit.id, weekKey, i);
+              const breakdown = computeCellBreakdown(habit, completions, weekKey, i, strategy, status);
               return (
                 <PunchCardCell
                   key={habit.id}
-                  completed={completed}
+                  status={status}
                   color={habit.color}
                   isToday={isCurrentWeek && i === todayIndex}
                   readOnly={readOnly}

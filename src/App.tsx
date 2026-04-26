@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Plus, Shuffle, MoreHorizontal, Download } from 'lucide-react';
+import { Share2, RotateCcw, Plus, Shuffle, MoreHorizontal, Download, Upload } from 'lucide-react';
 import { useMenu } from '@/hooks/useMenu';
 import { CATEGORIES } from '@/data/categories';
 import { CategorySection } from '@/components/CategorySection';
@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { Category, MenuItem, Menu } from '@/types';
 import { decodeMenuFromUrl, clearShareFromUrl } from '@/lib/share';
-import { downloadJson } from '@/lib/download';
+import { downloadJson, uploadJson } from '@/lib/download';
 import { cn } from '@/lib/utils';
 
 export default function App() {
@@ -140,6 +140,10 @@ export default function App() {
                   <DropdownMenuItem onClick={() => downloadJson(menu, `dopamine-menu-backup-${new Date().toISOString().slice(0, 10)}.json`)}>
                     <Download className="h-4 w-4 mr-2" />
                     Download backup
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => uploadJson<Menu>(importMenu)}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Restore backup
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <a href="/habits.html">

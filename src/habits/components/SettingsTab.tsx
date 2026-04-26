@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RotateCcw, Download } from 'lucide-react';
+import { RotateCcw, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HabitList } from './HabitList';
 import { HabitFormDialog } from './HabitFormDialog';
@@ -11,6 +11,7 @@ interface SettingsTabProps {
   onUpdateHabit: (id: string, updates: Partial<Omit<Habit, 'id'>>) => void;
   onDeleteHabit: (id: string) => void;
   onDownload: () => void;
+  onUpload: () => void;
   onReset: () => void;
 }
 
@@ -20,6 +21,7 @@ export function SettingsTab({
   onUpdateHabit,
   onDeleteHabit,
   onDownload,
+  onUpload,
   onReset,
 }: SettingsTabProps) {
   const [formOpen, setFormOpen] = useState(false);
@@ -72,6 +74,15 @@ export function SettingsTab({
         >
           <Download className="h-3.5 w-3.5 mr-1.5" />
           Download backup
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={onUpload}
+        >
+          <Upload className="h-3.5 w-3.5 mr-1.5" />
+          Restore backup
         </Button>
         <Button
           variant="outline"

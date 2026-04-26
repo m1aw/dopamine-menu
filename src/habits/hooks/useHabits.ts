@@ -177,6 +177,10 @@ export function useHabits() {
     setStore(makeDefaultStore());
   }, []);
 
+  const restoreStore = useCallback((imported: HabitStore) => {
+    setStore(imported);
+  }, []);
+
   return {
     store,
     habits: store.habits.filter((h) => !h.archived),
@@ -201,5 +205,6 @@ export function useHabits() {
     activeStrategy,
     setStrategy,
     resetAll,
+    restoreStore,
   };
 }

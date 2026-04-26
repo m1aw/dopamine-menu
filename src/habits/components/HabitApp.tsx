@@ -5,7 +5,8 @@ import { RewardsTab } from './RewardsTab';
 import { HistoryTab } from './HistoryTab';
 import { SettingsTab } from './SettingsTab';
 import { useHabits } from '@/habits/hooks/useHabits';
-import { downloadJson } from '@/lib/download';
+import { downloadJson, uploadJson } from '@/lib/download';
+import type { HabitStore } from '@/habits/types';
 
 export function HabitApp() {
   const [activeTab, setActiveTab] = useState<Tab>('grid');
@@ -29,6 +30,7 @@ export function HabitApp() {
     deleteReward,
     redeemReward,
     resetAll,
+    restoreStore,
   } = useHabits();
 
   return (
@@ -70,6 +72,7 @@ export function HabitApp() {
             onUpdateHabit={updateHabit}
             onDeleteHabit={deleteHabit}
             onDownload={() => downloadJson(store, `habits-backup-${new Date().toISOString().slice(0, 10)}.json`)}
+            onUpload={() => uploadJson<HabitStore>(restoreStore)}
             onReset={resetAll}
           />
         )}

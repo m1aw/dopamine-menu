@@ -10,11 +10,14 @@ export type Habit = {
   sortOrder: number;
 };
 
+export type CompletionStatus = 'checked' | 'half' | 'failed';
+
 export type Completion = {
   habitId: string;
   weekKey: string;
   day: number;
   completedAt: string;
+  status: CompletionStatus;
 };
 
 export type PointsBreakdown = {

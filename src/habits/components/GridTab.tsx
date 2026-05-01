@@ -9,17 +9,17 @@ import {
   getTodayDayIndex,
   isWeekEditable,
 } from '@/habits/lib/weeks';
-import type { Habit, Completion, PointsStrategy } from '@/habits/types';
+import type { Habit, Completion, CompletionStatus, PointsStrategy } from '@/habits/types';
 
 interface GridTabProps {
   habits: Habit[];
   completions: Completion[];
   strategy: PointsStrategy;
-  isCompleted: (habitId: string, weekKey: string, day: number) => boolean;
+  getCompletionStatus: (habitId: string, weekKey: string, day: number) => CompletionStatus | 'clear';
   onToggle: (habitId: string, weekKey: string, day: number) => void;
 }
 
-export function GridTab({ habits, completions, strategy, isCompleted, onToggle }: GridTabProps) {
+export function GridTab({ habits, completions, strategy, getCompletionStatus, onToggle }: GridTabProps) {
   const [weekKey, setWeekKey] = useState(getCurrentWeekKey);
 
   const currentWeekKey = getCurrentWeekKey();
@@ -46,7 +46,7 @@ export function GridTab({ habits, completions, strategy, isCompleted, onToggle }
           isCurrentWeek={isCurrentWeek}
           readOnly={readOnly}
           strategy={strategy}
-          isCompleted={isCompleted}
+          getCompletionStatus={getCompletionStatus}
           onToggle={onToggle}
         />
       </div>

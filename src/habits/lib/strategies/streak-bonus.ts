@@ -13,7 +13,7 @@ function computeConsecutiveDays(
 ): number {
   const habitCompletions = new Set(
     completions
-      .filter((c) => c.habitId === habitId)
+      .filter((c) => c.habitId === habitId && (c.status ?? 'checked') === 'checked')
       .map((c) => `${c.weekKey}:${c.day}`),
   );
 
@@ -38,6 +38,20 @@ export const streakBonusStrategy: PointsStrategy = {
   id: 'streak-bonus',
   name: 'Streak Bonus',
   calculate(habit: Habit, completions: Completion[], day: number, weekKey: string) {
+    const thisCompletion = completions.find(
+      (c) => c.habitId === habit.id && c.weekKey === weekKey && c.day === day,
+    );
+    const status = thisCompletion?.status ?? 'checked';
+
+    if (status === 'failed') {
+      return { base: 0, streakBonus: 0, total: 0, streakLength: 0, multiplier: 0 };
+    }
+
+    if (status === 'half') {
+      const halfPoints = Math.round(habit.basePoints * 0.5);
+      return { base: halfPoints, streakBonus: 0, total: halfPoints, streakLength: 0, multiplier: 0.5 };
+    }
+
     const streak = computeConsecutiveDays(completions, habit.id, day, weekKey);
     const multiplier = 1 + Math.floor(streak / 2) * 0.25;
     const base = habit.basePoints;

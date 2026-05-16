@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Plus, Shuffle, MoreHorizontal, Download, Upload } from 'lucide-react';
+import { Share2, Plus, Shuffle, MoreHorizontal } from 'lucide-react';
 import { useMenu } from '@/hooks/useMenu';
 import { CATEGORIES } from '@/data/categories';
 import { CategorySection } from '@/components/CategorySection';
 import { ItemFormDialog } from '@/components/ItemFormDialog';
 import { SpinDialog } from '@/components/SpinDialog';
 import { ShareDialog } from '@/components/ShareDialog';
-import { ResetDialog } from '@/components/ResetDialog';
+import { DopamineSettingsTab } from '@/components/DopamineSettingsTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
@@ -28,7 +28,7 @@ export default function App() {
   const [spinOpen, setSpinOpen] = useState(false);
   const [spinCategory, setSpinCategory] = useState<Category | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
-  const [resetOpen, setResetOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [newItemId, setNewItemId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category>(CATEGORIES[0].id);
 
@@ -75,29 +75,48 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background">
       <Tabs
-        value={activeCategory}
-        onValueChange={(v) => setActiveCategory(v as Category)}
+        value={settingsOpen ? 'settings' : activeCategory}
+        onValueChange={(v) => {
+          if (v === 'settings') {
+            setSettingsOpen(true);
+          } else {
+            setActiveCategory(v as Category);
+          }
+        }}
       >
         {/* Scrollable content — padded so it clears the fixed bottom bar */}
         <main className="max-w-2xl mx-auto px-4 pt-6 pb-36">
           {CATEGORIES.map((cat) => (
             <TabsContent key={cat.id} value={cat.id} className="mt-0 focus-visible:ring-0">
-              {/* Category header */}
-              <div className="mb-4">
-                <h2 className={cn('text-lg font-bold', cat.color)}>
-                  {cat.emoji} {cat.label}
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
-              </div>
+              {settingsOpen ? null : (
+                <>
+                  {/* Category header */}
+                  <div className="mb-4">
+                    <h2 className={cn('text-lg font-bold', cat.color)}>
+                      {cat.emoji} {cat.label}
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+                  </div>
 
-              <CategorySection
-                items={getItemsByCategory(cat.id)}
-                onEditItem={handleEditItem}
-                onDeleteItem={deleteItem}
-                newItemId={newItemId}
-              />
+                  <CategorySection
+                    items={getItemsByCategory(cat.id)}
+                    onEditItem={handleEditItem}
+                    onDeleteItem={deleteItem}
+                    newItemId={newItemId}
+                  />
+                </>
+              )}
             </TabsContent>
           ))}
+          <TabsContent value="settings" className="mt-0 focus-visible:ring-0">
+            {settingsOpen && (
+              <DopamineSettingsTab
+                onDownload={() => downloadJson(menu, `dopamine-menu-backup-${new Date().toISOString().slice(0, 10)}.json`)}
+                onUpload={() => uploadJson<Menu>(importMenu)}
+                onReset={resetToDefaults}
+              />
+            )}
+          </TabsContent>
         </main>
 
         {/* Fixed bottom bar */}
@@ -137,25 +156,13 @@ export default function App() {
                     <Share2 className="h-4 w-4 mr-2" />
                     Share menu
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => downloadJson(menu, `dopamine-menu-backup-${new Date().toISOString().slice(0, 10)}.json`)}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download backup
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => uploadJson<Menu>(importMenu)}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Restore backup
+                  <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                    <span>Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <a href="/habits.html">
                       <span>Habit tracker</span>
                     </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-red-400 focus:text-red-300"
-                    onClick={() => setResetOpen(true)}
-                  >
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Reset to defaults
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -163,29 +170,43 @@ export default function App() {
 
             {/* Tab strip */}
             <TabsList className="w-full h-auto p-1 gap-2 bg-transparent rounded-none mb-safe">
-              {CATEGORIES.map((cat) => {
-                const count = getItemsByCategory(cat.id).length;
-                const isActive = activeCategory === cat.id;
-                return (
-                  <TabsTrigger
-                    key={cat.id}
-                    value={cat.id}
-                    className={cn(
-                      `flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-xs font-medium transition-all ring-offset-0 ${cat.ringColor} data-[state=active]:${cat.bgColor}`,
-                      isActive ? `ring-2 ${cat.bgColor}` : `ring-1 text-muted-foreground`
-                    )}
-                  >
-                    <span className="text-lg leading-none">{cat.emoji}</span>
-                    <span className="leading-none text-[10px]">{cat.label}</span>
-                    <span className={cn(
-                      'text-[10px] leading-none font-semibold tabular-nums',
-                      isActive ? cat.color : 'text-muted-foreground/50'
-                    )}>
-                      {count}
-                    </span>
-                  </TabsTrigger>
-                );
-              })}
+              {!settingsOpen && (
+                <>
+                  {CATEGORIES.map((cat) => {
+                    const count = getItemsByCategory(cat.id).length;
+                    const isActive = activeCategory === cat.id;
+                    return (
+                      <TabsTrigger
+                        key={cat.id}
+                        value={cat.id}
+                        className={cn(
+                          `flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-xs font-medium transition-all ring-offset-0 ${cat.ringColor} data-[state=active]:${cat.bgColor}`,
+                          isActive ? `ring-2 ${cat.bgColor}` : `ring-1 text-muted-foreground`
+                        )}
+                      >
+                        <span className="text-lg leading-none">{cat.emoji}</span>
+                        <span className="leading-none text-[10px]">{cat.label}</span>
+                        <span className={cn(
+                          'text-[10px] leading-none font-semibold tabular-nums',
+                          isActive ? cat.color : 'text-muted-foreground/50'
+                        )}>
+                          {count}
+                        </span>
+                      </TabsTrigger>
+                    );
+                  })}
+                </>
+              )}
+              {settingsOpen && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-9 gap-1.5 text-sm"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  ← Back to menu
+                </Button>
+              )}
             </TabsList>
 
           </div>
@@ -217,12 +238,6 @@ export default function App() {
         menu={menu}
         sharedMenu={sharedMenu}
         onImportShared={() => sharedMenu && importMenu(sharedMenu)}
-      />
-
-      <ResetDialog
-        open={resetOpen}
-        onOpenChange={setResetOpen}
-        onConfirm={resetToDefaults}
       />
     </div>
   );

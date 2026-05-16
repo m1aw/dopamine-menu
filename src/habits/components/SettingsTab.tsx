@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { RotateCcw, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { HabitList } from './HabitList';
 import { HabitFormDialog } from './HabitFormDialog';
+import { BackupActions } from '@/components/BackupActions';
 import type { Habit } from '@/habits/types';
 
 interface SettingsTabProps {
@@ -11,6 +10,7 @@ interface SettingsTabProps {
   onUpdateHabit: (id: string, updates: Partial<Omit<Habit, 'id'>>) => void;
   onDeleteHabit: (id: string) => void;
   onDownload: () => void;
+  onUpload: () => void;
   onReset: () => void;
 }
 
@@ -20,11 +20,11 @@ export function SettingsTab({
   onUpdateHabit,
   onDeleteHabit,
   onDownload,
+  onUpload,
   onReset,
 }: SettingsTabProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
-  const [confirmReset, setConfirmReset] = useState(false);
 
   const handleAdd = () => {
     setEditingHabit(null);
@@ -44,16 +44,6 @@ export function SettingsTab({
     }
   };
 
-  const handleReset = () => {
-    if (confirmReset) {
-      onReset();
-      setConfirmReset(false);
-    } else {
-      setConfirmReset(true);
-      setTimeout(() => setConfirmReset(false), 2500);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <HabitList
@@ -63,26 +53,12 @@ export function SettingsTab({
         onDelete={onDeleteHabit}
       />
 
-      <div className="pt-4 border-t border-border flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={onDownload}
-        >
-          <Download className="h-3.5 w-3.5 mr-1.5" />
-          Download backup
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className={confirmReset ? 'text-red-400 border-red-400/50' : 'text-muted-foreground'}
-          onClick={handleReset}
-        >
-          <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-          {confirmReset ? 'Tap again to confirm' : 'Reset all data'}
-        </Button>
-      </div>
+      <BackupActions
+        onDownload={onDownload}
+        onUpload={onUpload}
+        onReset={onReset}
+        resetLabel="Reset all data"
+      />
 
       <HabitFormDialog
         open={formOpen}

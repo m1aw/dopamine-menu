@@ -123,55 +123,67 @@ export default function App() {
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-border">
           <div className="max-w-2xl mx-auto px-3">
 
-            {/* Action row */}
-            <div className="flex items-center gap-2 pt-2 pb-1">
-              <Button
-                size="sm"
-                className={cn('flex-1 h-9 gap-1.5 text-sm')}
-                onClick={handleAddItem}
-              >
-                <Plus className="h-4 w-4" />
-                Add to {activeMeta.label}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 gap-1.5 text-sm"
-                disabled={activeItems.length === 0}
-                onClick={handleSpin}
-              >
-                <Shuffle className="h-4 w-4" />
-                Spin
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
-                    <MoreHorizontal className="h-4 w-4" />
+            {settingsOpen ? (
+              /* Settings mode: single back button row + safe-area spacing */
+              <div className="flex items-center gap-2 py-2 mb-safe">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-9 gap-1.5 text-sm"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  ← Back to menu
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Action row */}
+                <div className="flex items-center gap-2 pt-2 pb-1">
+                  <Button
+                    size="sm"
+                    className={cn('flex-1 h-9 gap-1.5 text-sm')}
+                    onClick={handleAddItem}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add to {activeMeta.label}
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => setShareOpen(true)}>
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share menu
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a href="/habits.html">
-                      <span>Habit tracker</span>
-                    </a>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
 
-            {/* Tab strip */}
-            <TabsList className="w-full h-auto p-1 gap-2 bg-transparent rounded-none mb-safe">
-              {!settingsOpen && (
-                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 gap-1.5 text-sm"
+                    disabled={activeItems.length === 0}
+                    onClick={handleSpin}
+                  >
+                    <Shuffle className="h-4 w-4" />
+                    Spin
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem onClick={() => setShareOpen(true)}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share menu
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <a href="/habits.html">
+                          <span>Habit tracker</span>
+                        </a>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Tab strip */}
+                <TabsList className="w-full h-auto p-1 gap-2 bg-transparent rounded-none mb-safe">
                   {CATEGORIES.map((cat) => {
                     const count = getItemsByCategory(cat.id).length;
                     const isActive = activeCategory === cat.id;
@@ -195,19 +207,9 @@ export default function App() {
                       </TabsTrigger>
                     );
                   })}
-                </>
-              )}
-              {settingsOpen && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 h-9 gap-1.5 text-sm"
-                  onClick={() => setSettingsOpen(false)}
-                >
-                  ← Back to menu
-                </Button>
-              )}
-            </TabsList>
+                </TabsList>
+              </>
+            )}
 
           </div>
         </div>

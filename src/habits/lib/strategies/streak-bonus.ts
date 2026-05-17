@@ -2,30 +2,42 @@ import type { PointsStrategy, Habit, Completion, CompletionStatus } from '@/habi
 import { getAdjacentWeekKey } from '@/habits/lib/weeks';
 
 /**
- * Statuses that keep a streak alive without necessarily earning points.
- * 'checked' earns full points; 'skipped' marks the day as N/A (streak
- * preserved but 0 points — e.g. a rest day for a gym habit).
+ * Statuses that are transparent to the streak walk.
+ * They don't increment the streak count, but they don't break it either —
+ * the walk continues past them to find the next checked or stopping day.
+ * 'skipped' = N/A day (e.g. rest day); 'half' = partial effort.
  */
-const STREAK_PRESERVING: ReadonlySet<CompletionStatus> = new Set(['checked', 'skipped']);
+const STREAK_TRANSPARENT: ReadonlySet<CompletionStatus> = new Set(['skipped', 'half']);
 
+/**
+ * Count the number of 'checked' days in the unbroken run ending at day/weekKey.
+ * 'skipped' and 'half' days are transparent: they don't add to the count but
+ * don't reset it either. 'failed' or a missing record (clear) terminates the walk.
+ */
 function computeStreakLength(
   completions: Completion[],
   habitId: string,
   day: number,
   weekKey: string,
 ): number {
-  const streakDays = new Set(
+  const completionMap = new Map(
     completions
-      .filter((c) => c.habitId === habitId && STREAK_PRESERVING.has(c.status ?? 'checked'))
-      .map((c) => `${c.weekKey}:${c.day}`),
+      .filter((c) => c.habitId === habitId)
+      .map((c) => [`${c.weekKey}:${c.day}`, c.status ?? 'checked']),
   );
 
   let streak = 0;
   let currentWeek = weekKey;
   let currentDay = day;
 
-  while (streakDays.has(`${currentWeek}:${currentDay}`)) {
-    streak++;
+  while (true) {
+    const status = completionMap.get(`${currentWeek}:${currentDay}`);
+
+    if (status === undefined || status === 'failed') break;
+
+    if (status === 'checked') streak++;
+    // 'skipped' and 'half' are transparent: keep walking, don't increment
+
     currentDay--;
     if (currentDay < 0) {
       currentDay = 6;
@@ -49,7 +61,7 @@ export const streakBonusStrategy: PointsStrategy = {
       return { base: 0, streakBonus: 0, total: 0, streakLength: 0, multiplier: 0 };
     }
 
-    // Skipped days preserve the streak but award no points (N/A day).
+    // Skipped: N/A day — streak is preserved for the next checked day, but 0 points.
     if (status === 'skipped') {
       return { base: 0, streakBonus: 0, total: 0, streakLength: 0, multiplier: 0 };
     }

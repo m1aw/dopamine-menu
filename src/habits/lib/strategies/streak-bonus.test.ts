@@ -37,11 +37,30 @@ describe('checked', () => {
 });
 
 describe('half', () => {
-  it('awards 50% points with no streak contribution', () => {
+  it('awards 50% points', () => {
     const result = calculate(habit, [completion(0, 'half')], 0, '2024-W01');
     expect(result.base).toBe(5);
     expect(result.streakBonus).toBe(0);
     expect(result.total).toBe(5);
+  });
+
+  it('is transparent: checked → half → checked bridges the streak', () => {
+    const completions = [
+      completion(0, 'checked'),
+      completion(1, 'half'),
+      completion(2, 'checked'),
+    ];
+    // half on day 1 doesn't count toward or against the streak; streak = 2 checked days
+    const result = calculate(habit, completions, 2, '2024-W01');
+    expect(result.streakLength).toBe(2);
+    expect(result.multiplier).toBe(1.25);
+  });
+
+  it('does not increment the streak on its own', () => {
+    // Only half days — no checked days so streak = 0
+    const completions = [completion(0, 'half'), completion(1, 'half'), completion(2, 'checked')];
+    const result = calculate(habit, completions, 2, '2024-W01');
+    expect(result.streakLength).toBe(1); // only the 1 checked day counts
   });
 });
 
@@ -51,9 +70,18 @@ describe('failed', () => {
     expect(result.total).toBe(0);
   });
 
-  it('breaks the streak: checked after failed gets no bonus', () => {
+  it('resets the streak: checked after failed gets no bonus', () => {
     const completions = [completion(0, 'failed'), completion(1, 'checked')];
     const result = calculate(habit, completions, 1, '2024-W01');
+    expect(result.streakLength).toBe(1);
+    expect(result.streakBonus).toBe(0);
+  });
+});
+
+describe('clear (no completion record)', () => {
+  it('resets the streak: checked after clear gets no bonus', () => {
+    // day 0 has no record (clear); day 1 is checked
+    const result = calculate(habit, [completion(1, 'checked')], 1, '2024-W01');
     expect(result.streakLength).toBe(1);
     expect(result.streakBonus).toBe(0);
   });
@@ -65,33 +93,41 @@ describe('skipped (N/A day)', () => {
     expect(result.total).toBe(0);
   });
 
-  it('preserves the streak: checked → skipped → checked earns streak bonus', () => {
+  it('is transparent: checked → skipped → checked bridges the streak', () => {
     const completions = [
       completion(0, 'checked'),
       completion(1, 'skipped'),
       completion(2, 'checked'),
     ];
-    // Day 2 has a 3-day streak (0 checked, 1 skipped, 2 checked all preserve)
+    // skipped on day 1 is transparent; streak = 2 checked days (days 0 and 2)
     const result = calculate(habit, completions, 2, '2024-W01');
-    expect(result.streakLength).toBe(3);
+    expect(result.streakLength).toBe(2);
     expect(result.multiplier).toBe(1.25);
-    expect(result.total).toBeGreaterThan(10);
   });
 
-  it('counts skipped as streak-preserving even after a failed day', () => {
+  it('does not increment the streak on its own', () => {
+    // Only skipped days before the checked day — streak = 1 (only day 2 is checked)
+    const completions = [
+      completion(0, 'skipped'),
+      completion(1, 'skipped'),
+      completion(2, 'checked'),
+    ];
+    const result = calculate(habit, completions, 2, '2024-W01');
+    expect(result.streakLength).toBe(1);
+  });
+
+  it('is still stopped by a failed day before it', () => {
     const completions = [
       completion(0, 'failed'),
       completion(1, 'skipped'),
       completion(2, 'checked'),
     ];
+    // Walk: day 2 checked (+1), day 1 skipped (transparent), day 0 failed (STOP) → streak = 1
     const result = calculate(habit, completions, 2, '2024-W01');
-    // failed at day 0 breaks the streak; days 1 (skipped) + 2 (checked) are
-    // both streak-preserving, so streak = 2
-    expect(result.streakLength).toBe(2);
+    expect(result.streakLength).toBe(1);
   });
 
   it('clear cell (no completion record) is treated as checked for backwards-compat', () => {
-    // No completion stored for day 0 — calculate defaults status to 'checked'
     const result = calculate(habit, [], 0, '2024-W01');
     expect(result.total).toBe(10);
   });

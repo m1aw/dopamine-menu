@@ -1,3 +1,18 @@
+/**
+ * Streak-bonus strategy behaviour by status:
+ *
+ * | Status  | Points        | Streak effect                          |
+ * |---------|---------------|----------------------------------------|
+ * | checked | Full + bonus  | Increments streak count                |
+ * | half    | 50%, no bonus | Transparent (bridges, doesn't count)   |
+ * | skipped | 0             | Transparent (bridges, doesn't count)   |
+ * | failed  | 0             | Resets streak                          |
+ * | clear   | —             | Resets streak                          |
+ *
+ * "Transparent" means the walk continues past the day when computing
+ * streak length, so checked → skipped → checked gives streak = 2.
+ */
+
 import { describe, it, expect } from 'vitest';
 import { streakBonusStrategy } from './streak-bonus';
 import type { Habit, Completion } from '@/habits/types';

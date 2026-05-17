@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { DAY_LABELS } from '@/habits/lib/weeks';
 import { PunchCardCell } from './PunchCardCell';
-import type { Habit, Completion, CompletionStatus, PointsStrategy, PointsBreakdown } from '@/habits/types';
+import type { Habit, Completion, DayStatus, PointsStrategy, PointsBreakdown } from '@/habits/types';
 import { cn } from '@/lib/utils';
 
 function computeCellBreakdown(
@@ -10,7 +10,7 @@ function computeCellBreakdown(
   weekKey: string,
   day: number,
   strategy: PointsStrategy,
-  status: CompletionStatus | 'clear',
+  status: DayStatus,
 ): PointsBreakdown {
   if (status !== 'clear') {
     return strategy.calculate(habit, completions, day, weekKey);
@@ -34,7 +34,7 @@ interface PunchCardGridProps {
   isCurrentWeek: boolean;
   readOnly: boolean;
   strategy: PointsStrategy;
-  getCompletionStatus: (habitId: string, weekKey: string, day: number) => CompletionStatus | 'clear';
+  getCompletionStatus: (habitId: string, weekKey: string, day: number) => DayStatus;
   onToggle: (habitId: string, weekKey: string, day: number) => void;
 }
 

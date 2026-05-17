@@ -9,13 +9,13 @@ import {
   getTodayDayIndex,
   isWeekEditable,
 } from '@/habits/lib/weeks';
-import type { Habit, Completion, CompletionStatus, PointsStrategy } from '@/habits/types';
+import type { Habit, Completion, DayStatus, PointsStrategy } from '@/habits/types';
 
 interface GridTabProps {
   habits: Habit[];
   completions: Completion[];
   strategy: PointsStrategy;
-  getCompletionStatus: (habitId: string, weekKey: string, day: number) => CompletionStatus | 'clear';
+  getCompletionStatus: (habitId: string, weekKey: string, day: number) => DayStatus;
   onToggle: (habitId: string, weekKey: string, day: number) => void;
 }
 

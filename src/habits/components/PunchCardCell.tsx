@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { CompletionStatus, PointsBreakdown } from '@/habits/types';
+import type { DayStatus, PointsBreakdown } from '@/habits/types';
 
 const COLOR_MAP: Record<string, { bg: string }> = {
   emerald: { bg: 'bg-emerald-500' },
@@ -13,7 +13,7 @@ const COLOR_MAP: Record<string, { bg: string }> = {
 };
 
 interface PunchCardCellProps {
-  status: CompletionStatus | 'clear';
+  status: DayStatus;
   color: string;
   isToday: boolean;
   readOnly: boolean;

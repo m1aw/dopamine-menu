@@ -1,19 +1,22 @@
-import type { PointsStrategy, Habit, Completion } from '@/habits/types';
+import type { PointsStrategy, Habit, Completion, CompletionStatus } from '@/habits/types';
 import { getAdjacentWeekKey } from '@/habits/lib/weeks';
 
 /**
- * Count consecutive days of completion for a habit, going backwards from
- * the given day/week. Looks across week boundaries.
+ * Statuses that keep a streak alive without necessarily earning points.
+ * 'checked' earns full points; 'skipped' marks the day as N/A (streak
+ * preserved but 0 points — e.g. a rest day for a gym habit).
  */
-function computeConsecutiveDays(
+const STREAK_PRESERVING: ReadonlySet<CompletionStatus> = new Set(['checked', 'skipped']);
+
+function computeStreakLength(
   completions: Completion[],
   habitId: string,
   day: number,
   weekKey: string,
 ): number {
-  const habitCompletions = new Set(
+  const streakDays = new Set(
     completions
-      .filter((c) => c.habitId === habitId && ['checked', 'skipped'].includes(c.status ?? 'checked'))
+      .filter((c) => c.habitId === habitId && STREAK_PRESERVING.has(c.status ?? 'checked'))
       .map((c) => `${c.weekKey}:${c.day}`),
   );
 
@@ -21,8 +24,7 @@ function computeConsecutiveDays(
   let currentWeek = weekKey;
   let currentDay = day;
 
-  while (true) {
-    if (!habitCompletions.has(`${currentWeek}:${currentDay}`)) break;
+  while (streakDays.has(`${currentWeek}:${currentDay}`)) {
     streak++;
     currentDay--;
     if (currentDay < 0) {
@@ -47,6 +49,7 @@ export const streakBonusStrategy: PointsStrategy = {
       return { base: 0, streakBonus: 0, total: 0, streakLength: 0, multiplier: 0 };
     }
 
+    // Skipped days preserve the streak but award no points (N/A day).
     if (status === 'skipped') {
       return { base: 0, streakBonus: 0, total: 0, streakLength: 0, multiplier: 0 };
     }
@@ -56,7 +59,7 @@ export const streakBonusStrategy: PointsStrategy = {
       return { base: halfPoints, streakBonus: 0, total: halfPoints, streakLength: 0, multiplier: 0.5 };
     }
 
-    const streak = computeConsecutiveDays(completions, habit.id, day, weekKey);
+    const streak = computeStreakLength(completions, habit.id, day, weekKey);
     const multiplier = 1 + Math.floor(streak / 2) * 0.25;
     const base = habit.basePoints;
     const streakBonus = Math.round(base * (multiplier - 1));

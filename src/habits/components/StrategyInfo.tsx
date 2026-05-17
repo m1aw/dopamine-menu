@@ -42,6 +42,7 @@ export function StrategyInfo({ strategy, exampleHabit }: StrategyInfoProps) {
           weekKey: week,
           day,
           completedAt: new Date().toISOString(),
+          status: 'checked',
         });
         day--;
         if (day < 0) {

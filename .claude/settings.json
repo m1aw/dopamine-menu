@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "cd /Users/antonio/workspace/playground/dopamine-menu && npm run lint 2>&1",
+            "statusMessage": "Linting before commit...",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

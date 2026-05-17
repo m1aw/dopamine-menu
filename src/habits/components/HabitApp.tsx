@@ -15,7 +15,7 @@ export function HabitApp() {
     allHabits,
     store,
     activeStrategy,
-    isCompleted,
+    getCompletionStatus,
     toggleCompletion,
     addHabit,
     updateHabit,
@@ -41,7 +41,7 @@ export function HabitApp() {
             habits={habits}
             completions={store.completions}
             strategy={activeStrategy}
-            isCompleted={isCompleted}
+            getCompletionStatus={getCompletionStatus}
             onToggle={toggleCompletion}
           />
         )}

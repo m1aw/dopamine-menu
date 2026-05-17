@@ -10,11 +10,17 @@ export type Habit = {
   sortOrder: number;
 };
 
+export type CompletionStatus = 'checked' | 'half' | 'failed' | 'skipped';
+
+/** CompletionStatus plus 'clear' for cells with no recorded completion. */
+export type DayStatus = CompletionStatus | 'clear';
+
 export type Completion = {
   habitId: string;
   weekKey: string;
   day: number;
   completedAt: string;
+  status: CompletionStatus;
 };
 
 export type PointsBreakdown = {

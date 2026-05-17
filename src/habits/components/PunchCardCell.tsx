@@ -45,6 +45,14 @@ function FailIcon() {
   );
 }
 
+function SkipIcon() {
+  return (
+    <svg className="w-[40%] h-[40%]" viewBox="0 0 16 16" fill="none">
+      <path d="M2 8 Q5 5 8 8 Q11 11 14 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function PunchCardCell({ status, color, isToday, readOnly, breakdown, onToggle }: PunchCardCellProps) {
   const { bg } = COLOR_MAP[color] ?? COLOR_MAP.emerald;
   const hasBonus = breakdown.streakBonus > 0;
@@ -54,6 +62,7 @@ export function PunchCardCell({ status, color, isToday, readOnly, breakdown, onT
     checked: cn(bg, 'text-white shadow-sm'),
     half:    'bg-yellow-400 text-white shadow-sm',
     failed:  'bg-red-500 text-white shadow-sm',
+    skipped: 'bg-zinc-400 text-white shadow-sm',
   }[status];
 
   return (
@@ -94,6 +103,9 @@ export function PunchCardCell({ status, color, isToday, readOnly, breakdown, onT
       )}
       {status === 'failed' && (
         <FailIcon />
+      )}
+      {status === 'skipped' && (
+        <SkipIcon />
       )}
     </button>
   );

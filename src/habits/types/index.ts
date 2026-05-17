@@ -10,7 +10,7 @@ export type Habit = {
   sortOrder: number;
 };
 
-export type CompletionStatus = 'checked' | 'half' | 'failed';
+export type CompletionStatus = 'checked' | 'half' | 'failed' | 'skipped';
 
 export type Completion = {
   habitId: string;

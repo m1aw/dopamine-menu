@@ -66,7 +66,7 @@ export function useHabits() {
 
   // --- Completions ---
 
-  const CYCLE: Array<CompletionStatus | 'clear'> = ['checked', 'half', 'failed', 'clear'];
+  const CYCLE: Array<CompletionStatus | 'clear'> = ['checked', 'half', 'failed', 'skipped', 'clear'];
 
   const toggleCompletion = useCallback((habitId: string, weekKey: string, day: number) => {
     setStore((prev) => {

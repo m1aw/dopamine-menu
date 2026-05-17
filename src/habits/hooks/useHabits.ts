@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { HabitStore, Habit, Completion, DayStatus, Reward, Redemption, PointsBreakdown } from '@/habits/types';
+
+const COMPLETION_CYCLE: Array<DayStatus> = ['checked', 'half', 'failed', 'skipped', 'clear'];
 import { loadHabitStore, saveHabitStore } from '@/habits/lib/storage';
 import { makeDefaultStore } from '@/habits/data/defaults';
 import { getStrategy } from '@/habits/lib/strategies';
@@ -66,15 +68,13 @@ export function useHabits() {
 
   // --- Completions ---
 
-  const CYCLE: Array<DayStatus> = ['checked', 'half', 'failed', 'skipped', 'clear'];
-
   const toggleCompletion = useCallback((habitId: string, weekKey: string, day: number) => {
     setStore((prev) => {
       const existing = prev.completions.find(
         (c) => c.habitId === habitId && c.weekKey === weekKey && c.day === day,
       );
       const currentStatus: DayStatus = existing?.status ?? 'clear';
-      const nextStatus = CYCLE[(CYCLE.indexOf(currentStatus) + 1) % CYCLE.length];
+      const nextStatus = COMPLETION_CYCLE[(COMPLETION_CYCLE.indexOf(currentStatus) + 1) % COMPLETION_CYCLE.length];
 
       if (nextStatus === 'clear') {
         return { ...prev, completions: prev.completions.filter((c) => c !== existing) };

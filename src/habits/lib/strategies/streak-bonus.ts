@@ -36,7 +36,7 @@ function computeStreakLength(
     if (status === undefined || status === 'failed') break;
 
     if (status === 'checked') streak++;
-    // 'skipped' and 'half' are transparent: keep walking, don't increment
+    else if (!STREAK_TRANSPARENT.has(status)) break; // defensive: unknown status stops the walk
 
     currentDay--;
     if (currentDay < 0) {

@@ -2,13 +2,15 @@ import path from 'path'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
-let plugins = [react()];
+const optionalPlugins: ReturnType<typeof react>[] = [];
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { cloudflare } = require("@cloudflare/vite-plugin");
-  plugins.push(cloudflare());
+  optionalPlugins.push(cloudflare());
 } catch {
   // Cloudflare plugin not installed, skipping
 }
+const plugins = [react(), ...optionalPlugins];
 
 // https://vite.dev/config/
 export default defineConfig({
